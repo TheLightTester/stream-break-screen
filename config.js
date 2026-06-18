@@ -25,7 +25,7 @@ const OVERLAY_CONFIG = {
     // File name of your bouncing logo image.
     // Place the image in the same folder as index.html.
     // Supports JPG, PNG, GIF, WebP.
-    defaultImage: "FFNEW.png",
+    defaultImage: "default-logo.png",
 
     // -----------------------------------------------------------------------
     // Bouncer Physics & Rotation

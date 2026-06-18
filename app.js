@@ -40,7 +40,7 @@ const DEFAULT_SETTINGS = {
     toggleParticles: true,
     toggleGrid: true,
     toggleShocks: true,
-    defaultImage: "FFNEW.png",
+    defaultImage: "default-logo.png",
     customLogoUrl: "", // Base64 data url
     breakPosition: "center",
     timerPosition: "bottom-right",
@@ -454,7 +454,7 @@ function applySettingsToUI() {
     bouncer.style.height = `${settings.size}px`;
 
     // 3. Logo representation
-    const fallbackImage = settings.defaultImage || "FFNEW.png";
+    const fallbackImage = settings.defaultImage || "default-logo.png";
     defaultLogo.src = fallbackImage;
 
     if (settings.customLogoUrl) {
@@ -530,7 +530,7 @@ btnResetLogo.addEventListener('click', () => {
     settings.customLogoUrl = "";
     customLogo.style.display = 'none';
     defaultLogo.style.display = 'block';
-    imageUploadPreview.innerHTML = `<img src="${settings.defaultImage || 'FFNEW.png'}" alt="Preview">`;
+    imageUploadPreview.innerHTML = `<img src="${settings.defaultImage || 'default-logo.png'}" alt="Preview">`;
     logoFileInput.value = ""; // clear selector input
 });
 

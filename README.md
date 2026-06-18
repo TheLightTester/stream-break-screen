@@ -22,46 +22,27 @@ A **free, no-install browser overlay** for Twitch streamers — drop it straight
 
 ## 🚀 Quick Start
 
-### 1. Download
+### Step 1 — Download & Extract
 
 Click **Code → Download ZIP** on GitHub, then unzip the folder anywhere on your PC.
 
-### 2. Customize `config.js`
+---
 
-Open `config.js` in any text editor (Notepad is fine) and fill in your details:
+### Step 2 — Open in Browser to Configure
 
-```js
-// Your social handles — leave "" to hide a platform
-socials: {
-    twitch:    "YourChannel",
-    instagram: "@yourhandle",
-    youtube:   "@yourchannel",
-    kofi:      "yourpage",
-    // ...
-},
+Double-click `index.html` to open it in Chrome or Edge. This lets you:
 
-// How long your break is (in seconds)
-timerDuration: 300,   // 300 = 5 minutes
+- Press **`C`** or click the **⚙️** gear icon to open the Settings panel
+- Set your break message, timer duration, social handles, theme, and logo
+- Click **Apply & Save Settings** — your choices are saved and will persist automatically
 
-// Your break screen message
-statusText:    "BE RIGHT BACK",
-statusSubtext: "Taking a quick break! Grab a drink and settle in.",
+> You only need the browser open for this setup step. Once your settings are saved, you're done here.
 
-// Theme: "cream-gold" | "neon-cyber" | "dark-nebula" | "emerald-glow" | "fire-glow"
-themePreset: "cream-gold",
-```
+---
 
-### 3. Add your logo *(optional)*
+### Step 3 — Add as a Browser Source
 
-Replace `FFNEW.png` with your own image (JPG, PNG, GIF, WebP). Update `config.js`:
-
-```js
-defaultImage: "your-logo.png",
-```
-
-Or upload it live using the Settings panel's **Upload JPG/PNG** button.
-
-### 4. Add to Streamlabs / OBS
+In **Streamlabs Desktop** or **OBS Studio**, add a new Browser Source with these settings:
 
 | Setting | Value |
 |---|---|
@@ -71,6 +52,50 @@ Or upload it live using the Settings panel's **Upload JPG/PNG** button.
 | **Height** | `1080` |
 | **Custom CSS** | *(leave empty)* |
 | **Refresh on scene activate** | ✅ Recommended |
+
+Your browser does **not** need to be open while streaming — the stream software runs the overlay itself.
+
+---
+
+### Step 4 — Control It Live with Interact
+
+Need to start the timer, change settings, or update text mid-stream? Use the **Interact** feature built into OBS and Streamlabs — no alt-tabbing required:
+
+1. Right-click the Browser Source in your source list
+2. Select **Interact**
+3. Press **`C`** or click the ⚙️ gear icon to open Settings
+4. Make your changes and hit **Apply & Save Settings**
+
+---
+
+### 🛠️ Advanced: Edit `config.js` Directly
+
+Prefer to configure everything upfront in a text file? Open `config.js` in any editor (Notepad works) and set your defaults before adding the source:
+
+```js
+// Your social handles — leave "" to hide a platform
+socials: {
+    twitch:    "YourChannel",
+    instagram: "@yourhandle",
+    youtube:   "@yourchannel",
+    kofi:      "yourpage",
+},
+
+// Break duration in seconds (300 = 5 minutes)
+timerDuration: 300,
+
+// Break message
+statusText:    "BE RIGHT BACK",
+statusSubtext: "Taking a quick break! Grab a drink and settle in.",
+
+// Theme: "cream-gold" | "neon-cyber" | "dark-nebula" | "emerald-glow" | "fire-glow"
+themePreset: "cream-gold",
+
+// Your logo image (place file in the same folder as index.html)
+defaultImage: "your-logo.png",
+```
+
+Settings saved via the in-overlay panel always take priority over `config.js`.
 
 ---
 
@@ -127,7 +152,7 @@ stream-break-screen/
 ├── app.js          ← All logic: physics, timer, carousel, settings
 ├── style.css       ← All styles and theme definitions
 ├── config.js       ← ⭐ Your personal settings (edit this!)
-├── FFNEW.png       ← Default bouncing logo (replace with your own)
+├── default-logo.png ← Default bouncing logo (replace with your own)
 └── LICENSE         ← GNU GPL v3 — free to use and modify
 ```
 
