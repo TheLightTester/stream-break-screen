@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch Break Screen & Overlay</title>
+    <!-- Fonts: Orbitron for digital look, Montserrat for UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Dashboard Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Canvas for Glowing Particles -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Main Scene Stage (Forces 16:9 aspect ratio scaling) -->
+    <div id="scene-stage">
+        <!-- Ambient grid overlay -->
+        <div class="grid-overlay"></div>
+        
+        <!-- Bouncing Element Wrapper (with 3D perspective) -->
+        <div id="bouncer-container">
+            <div id="bouncer">
+                <!-- Default Logo (FFNEW.png) -->
+                <img id="default-logo" src="FFNEW.png" alt="Bouncing Logo">
+                <!-- Custom Image (Hidden until uploaded) -->
+                <img id="custom-logo" src="" alt="Bouncing Logo" style="display: none;">
+                
+                <!-- Bounce Impact Shockwave -->
+                <div id="ripple-effect"></div>
+            </div>
+        </div>
+
+        <!-- Foreground Widgets -->
+        <div id="widgets-container">
+            <!-- Left Info Panel -->
+            <div class="panel-left">
+                <!-- Status & Title -->
+                <div class="status-box">
+                    <span class="status-badge"><span class="pulse-dot"></span>STREAMING BREAK</span>
+                    <h1 id="status-text">BE RIGHT BACK</h1>
+                    <p id="status-subtext">Taking a quick 5 minute break! Grab a drink and settle in.</p>
+                </div>
+
+                <!-- Live Socials Carousel -->
+                <div id="socials-widget" class="socials-box">
+                    <div class="social-icon-wrapper">
+                        <i id="social-icon" class="fab fa-twitch"></i>
+                    </div>
+                    <div class="social-text">
+                        <span id="social-platform" class="social-platform">TWITCH</span>
+                        <span id="social-handle" class="social-handle">FolkFirebrand</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Info Panel (Timer) -->
+            <div class="panel-right">
+                <div id="timer-widget" class="timer-box">
+                    <svg class="timer-ring" width="220" height="220">
+                        <circle class="timer-ring-bg" cx="110" cy="110" r="95"></circle>
+                        <circle class="timer-ring-progress" id="timer-progress" cx="110" cy="110" r="95"></circle>
+                    </svg>
+                    <div class="timer-content">
+                        <span id="timer-display">05:00</span>
+                        <span class="timer-label">RESUMING IN</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toggle Control Panel Button (visible on hover/top right) -->
+        <button id="settings-toggle" title="Press 'C' or click to configure">
+            <i class="fas fa-cog"></i>
+        </button>
+
+        <!-- Settings Control Panel (Glassmorphic Modal/Sidebar) -->
+        <div id="settings-panel">
+            <div class="settings-header">
+                <h2><i class="fas fa-sliders"></i> Stream Overlay Settings</h2>
+                <button id="settings-close"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="settings-content">
+                <!-- Section 1: Logo & Image Source -->
+                <div class="settings-group">
+                    <h3><i class="fas fa-image"></i> Bouncer Image</h3>
+                    <div class="image-upload-wrapper">
+                        <div class="image-preview" id="image-upload-preview">
+                            <img src="FFNEW.png" alt="Preview">
+                        </div>
+                        <div class="upload-buttons">
+                            <label class="btn btn-primary" for="logo-file">
+                                <i class="fas fa-upload"></i> Upload JPG/PNG
+                            </label>
+                            <input type="file" id="logo-file" accept="image/*" style="display: none;">
+                            <button id="btn-reset-logo" class="btn btn-secondary">Reset to Default Image</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Physics Parameters -->
+                <div class="settings-group">
+                    <h3><i class="fas fa-running"></i> Physics & Rotation</h3>
+                    <div class="control-row">
+                        <label for="speed-slider">Speed Factor</label>
+                        <input type="range" id="speed-slider" min="1" max="15" step="0.5" value="4">
+                        <span class="value-display" id="speed-val">4</span>
+                    </div>
+                    <div class="control-row">
+                        <label for="size-slider">Image Size (px)</label>
+                        <input type="range" id="size-slider" min="50" max="600" step="5" value="300">
+                        <span class="value-display" id="size-val">300px</span>
+                    </div>
+                    <div class="control-row">
+                        <label for="rotation-speed">Rotation Speed</label>
+                        <input type="range" id="rotation-speed" min="0" max="10" step="0.5" value="1">
+                        <span class="value-display" id="rot-speed-val">1</span>
+                    </div>
+                    <div class="control-row checkboxes">
+                        <label>Flip Axes:</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="axis-x"> X (Pitch)</label>
+                            <label><input type="checkbox" id="axis-y"> Y (Yaw)</label>
+                            <label><input type="checkbox" id="axis-z" checked> Z (Roll)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Timer Config -->
+                <div class="settings-group">
+                    <h3><i class="fas fa-clock"></i> Countdown Timer</h3>
+                    <div class="control-row inline-inputs">
+                        <div class="input-wrap">
+                            <label for="timer-minutes">Minutes</label>
+                            <input type="number" id="timer-minutes" min="0" max="99" value="5">
+                        </div>
+                        <div class="input-wrap">
+                            <label for="timer-seconds">Seconds</label>
+                            <input type="number" id="timer-seconds" min="0" max="59" value="0">
+                        </div>
+                    </div>
+                    <div class="timer-action-buttons">
+                        <button id="btn-timer-start" class="btn btn-success"><i class="fas fa-play"></i> Start</button>
+                        <button id="btn-timer-pause" class="btn btn-warning"><i class="fas fa-pause"></i> Pause</button>
+                        <button id="btn-timer-reset" class="btn btn-danger"><i class="fas fa-undo"></i> Reset</button>
+                    </div>
+                </div>
+
+                <!-- Section 4: Texts & Socials -->
+                <div class="settings-group">
+                    <h3><i class="fas fa-bullhorn"></i> Overlay Branding</h3>
+                    <div class="control-row">
+                        <label for="input-status-text">Status Text</label>
+                        <input type="text" id="input-status-text" value="BE RIGHT BACK">
+                    </div>
+                    <div class="control-row">
+                        <label for="input-status-subtext">Status Detail</label>
+                        <textarea id="input-status-subtext" rows="2">Taking a quick 5 minute break! Grab a drink and settle in.</textarea>
+                    </div>
+                    
+                    <h4>Social Media Handles</h4>
+                    <div class="social-input-grid">
+                        <div class="social-field-wrap">
+                            <label><input type="checkbox" id="show-twitch" checked> Show Twitch</label>
+                            <div class="social-field">
+                                <i class="fab fa-twitch text-twitch"></i>
+                                <input type="text" id="social-twitch" placeholder="Twitch username" value="FolkFirebrand">
+                            </div>
+                        </div>
+                        <div class="social-field-wrap">
+                            <label><input type="checkbox" id="show-twitter"> Show X/Twitter</label>
+                            <div class="social-field">
+                                <i class="fab fa-twitter text-twitter"></i>
+                                <input type="text" id="social-twitter" placeholder="X/Twitter handle" value="">
+                            </div>
+                        </div>
+                        <div class="social-field-wrap">
+                            <label><input type="checkbox" id="show-instagram" checked> Show Instagram</label>
+                            <div class="social-field">
+                                <i class="fab fa-instagram text-instagram"></i>
+                                <input type="text" id="social-instagram" placeholder="Instagram username" value="@folkfirebrand">
+                            </div>
+                        </div>
+                        <div class="social-field-wrap">
+                            <label><input type="checkbox" id="show-youtube" checked> Show YouTube</label>
+                            <div class="social-field">
+                                <i class="fab fa-youtube text-youtube"></i>
+                                <input type="text" id="social-youtube" placeholder="YouTube Channel" value="@folkfirebrand">
+                            </div>
+                        </div>
+                        <div class="social-field-wrap">
+                            <label><input type="checkbox" id="show-discord" checked> Show Discord</label>
+                            <div class="social-field">
+                                <i class="fab fa-discord text-discord"></i>
+                                <input type="text" id="social-discord" placeholder="Discord Invite" value="">
+                            </div>
+                        </div>
+                        <div class="social-field-wrap">
+                            <label><input type="checkbox" id="show-kofi"> Show Ko-fi</label>
+                            <div class="social-field">
+                                <svg class="text-kofi" viewBox="0 0 24 24" style="fill: currentColor;"><path d="M11.351 2.715c-2.7 0-4.986.025-6.83.26C2.078 3.285 0 5.154 0 8.61c0 3.506.182 6.13 1.585 8.493 1.584 2.701 4.233 4.182 7.662 4.182h.83c4.209 0 6.494-2.234 7.637-4a9.5 9.5 0 0 0 1.091-2.338C21.792 14.688 24 12.22 24 9.208v-.415c0-3.247-2.13-5.507-5.792-5.87-1.558-.156-2.65-.208-6.857-.208m0 1.947c4.208 0 5.09.052 6.571.182 2.624.311 4.13 1.584 4.13 4v.39c0 2.156-1.792 3.844-3.87 3.844h-.935l-.156.649c-.208 1.013-.597 1.818-1.039 2.546-.909 1.428-2.545 3.064-5.922 3.064h-.805c-2.571 0-4.831-.883-6.078-3.195-1.09-2-1.298-4.155-1.298-7.506 0-2.181.857-3.402 3.012-3.714 1.533-.233 3.559-.26 6.39-.26m6.547 2.287c-.416 0-.65.234-.65.546v2.935c0 .311.234.545.65.545 1.324 0 2.051-.754 2.051-2s-.727-2.026-2.052-2.026m-10.39.182c-1.818 0-3.013 1.48-3.013 3.142 0 1.533.858 2.857 1.949 3.897.727.701 1.87 1.429 2.649 1.896a1.47 1.47 0 0 0 1.507 0c.78-.467 1.922-1.195 2.623-1.896 1.117-1.039 1.974-2.364 1.974-3.897 0-1.662-1.247-3.142-3.039-3.142-1.065 0-1.792.545-2.338 1.298-.493-.753-1.246-1.298-2.312-1.298"/></svg>
+                                <input type="text" id="social-kofi" placeholder="Ko-fi page" value="">
+                            </div>
+                        </div>
+                        <div class="social-field-wrap">
+                            <label><input type="checkbox" id="show-patreon"> Show Patreon</label>
+                            <div class="social-field">
+                                <i class="fab fa-patreon text-patreon"></i>
+                                <input type="text" id="social-patreon" placeholder="Patreon page" value="">
+                            </div>
+                        </div>
+                        <div class="social-field-wrap">
+                            <label><input type="checkbox" id="show-tiktok"> Show TikTok</label>
+                            <div class="social-field">
+                                <i class="fab fa-tiktok text-tiktok"></i>
+                                <input type="text" id="social-tiktok" placeholder="TikTok username" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Layout & Positioning -->
+                <div class="settings-group">
+                    <h3><i class="fas fa-th-large"></i> Layout & Positioning</h3>
+                    <div class="control-row">
+                        <label for="layout-break-position">Break & Socials Position</label>
+                        <select id="layout-break-position">
+                            <option value="center">Center (Front & Center)</option>
+                            <option value="top-center">Top Center</option>
+                            <option value="bottom-center">Bottom Center</option>
+                            <option value="bottom-left">Bottom Left</option>
+                            <option value="bottom-right">Bottom Right</option>
+                            <option value="top-left">Top Left</option>
+                            <option value="top-right">Top Right</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <label for="layout-timer-position">Timer Position</label>
+                        <select id="layout-timer-position">
+                            <option value="center">Center</option>
+                            <option value="top-center">Top Center</option>
+                            <option value="bottom-center">Bottom Center</option>
+                            <option value="bottom-left">Bottom Left</option>
+                            <option value="bottom-right" selected>Bottom Right</option>
+                            <option value="top-left">Top Left</option>
+                            <option value="top-right">Top Right</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <label for="widget-scale-slider">Message & Socials Size</label>
+                        <input type="range" id="widget-scale-slider" min="0.5" max="2.0" step="0.05" value="1.5">
+                        <span class="value-display" id="widget-scale-val">150%</span>
+                    </div>
+                </div>
+
+                <!-- Section 6: Theme & Ambient Effects -->
+                <div class="settings-group">
+                    <h3><i class="fas fa-palette"></i> Theme & Ambient Effects</h3>
+                    <div class="control-row">
+                        <label for="theme-preset">Background Preset</label>
+                        <select id="theme-preset">
+                            <option value="cream-gold" selected>Cream & Gold (FFNEW.png Match)</option>
+                            <option value="neon-cyber">Neon Cyber (Purple/Pink/Cyan)</option>
+                            <option value="dark-nebula">Dark Nebula (Deep Blue/Indigo)</option>
+                            <option value="emerald-glow">Emerald Stream (Dark Teal/Green)</option>
+                            <option value="fire-glow">Solar Ember (Dark Grey/Orange/Red)</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <label for="particle-density">Particle Density</label>
+                        <input type="range" id="particle-density" min="0" max="150" step="5" value="60">
+                        <span class="value-display" id="particle-val">60</span>
+                    </div>
+                    <div class="control-row checkboxes">
+                        <label>Toggle Elements:</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="toggle-particles" checked> Ambient Particles</label>
+                            <label><input type="checkbox" id="toggle-grid" checked> Digital Grid</label>
+                            <label><input type="checkbox" id="toggle-shocks" checked> Collision Ripples</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-footer">
+                <button id="btn-save-settings" class="btn btn-primary"><i class="fas fa-check"></i> Apply & Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Entry -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
