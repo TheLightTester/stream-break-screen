@@ -1,4 +1,4 @@
-# 🎮 Twitch Break Screen Overlay
+# 🎮 Stream Break Screen Overlay
 
 A **free, no-install browser overlay** for Twitch streamers — drop it straight into Streamlabs Desktop or OBS Studio as a Browser Source. No server, no account, no framework. Just open `index.html`.
 
@@ -132,7 +132,7 @@ In the browser's developer console (F12), run: `localStorage.removeItem('twitch_
 
 ## 📄 License
 
-MIT — free to use, modify, and redistribute. Attribution appreciated but not required.
+[GNU General Public License v3.0](LICENSE) — free to use, modify, and redistribute. If you distribute a modified version, you must also share the source code under the same license.
 
 ---
 
